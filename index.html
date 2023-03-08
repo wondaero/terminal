@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="./assets/css/normalize.css">
+    <style>
+        .wrapper{
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header{
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        ul{
+            display: flex;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        li{
+            width: 15px;
+            height: 15px;
+            margin-right: 10px;
+            border-radius: 50%;
+            background: black;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, .5);
+        }
+
+        header .btns{
+            display: flex;
+            align-items: center;
+        }
+        
+        header .btns button{
+            outline: 0;
+            border: 0;
+            background: #eee;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin-right: 4px;
+            font-size: 12px;
+        }
+        header .btns button.hidden{
+            display: none;
+        }
+
+        header .btns button:last-child{
+            margin-right: 0;
+        }
+        
+        textarea{
+            flex: 1 0 1px;
+            background: #eee;
+            resize: none;
+            outline: 0;
+            border: 0;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+
+<body>
+    <div class="wrapper">
+        <header>
+            <ul>
+                <li data-bg="#000" data-color="#fff"></li>
+                <li data-bg="navy" data-color="#fff"></li>
+                <li data-bg="gray" data-color="#0f0"></li>
+            </ul>
+            <div class="btns">
+                <button id="btn_stop" class="hidden" onclick="autoTxt.stop()">STOP</button>
+                <button id="btn_auto" onclick="autoTxt.ing()">AUTO</button>
+                <button onclick="autoTxt.init()">INIT</button>
+                <button onclick="autoTxt.exe()">EXECUTE</button>
+            </div>
+        </header>
+        <textarea></textarea>
+    </div>
+    
+    <script>
+        function getRandomNum(mn, mx){return Math.floor(Math.random() * (mx - mn + 1)) + mn;};
+
+        const lis = document.querySelectorAll('li');
+        const txtArea = document.querySelector('textarea');
+        const btn_stop = document.querySelector('#btn_stop');
+        const btn_auto = document.querySelector('#btn_auto');
+
+        const strings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@';
+
+        lis.forEach(function(el){
+            el.style.background = `linear-gradient(135deg, ${el.dataset.bg} 50%, ${el.dataset.color} 0)`;
+
+            el.addEventListener('click', function(){
+                txtArea.style.background = `${el.dataset.bg}`;
+                txtArea.style.color = `${el.dataset.color}`;
+            })
+        })
+
+        const autoTxt = new autoText();
+
+        function autoText(){
+
+            const t = this;
+
+            t.raf = false;
+
+            t.ing = function(){
+                btn_auto.classList.add('hidden');
+                btn_stop.classList.remove('hidden');
+
+                let txt = strings[getRandomNum(0, strings.length - 1)];
+
+                if(txt === '!') txt = '\n';
+                else if(txt === '@') txt = ' ';
+
+                console.log(txtArea.innerHTML);
+
+                txtArea.innerHTML += txt;
+                t.raf = window.requestAnimationFrame(t.ing);
+            }
+
+            t.stop = function(){
+                btn_auto.classList.remove('hidden');
+                btn_stop.classList.add('hidden');
+
+                window.cancelAnimationFrame(t.raf);
+            }
+
+            t.init = function(){
+                btn_auto.classList.remove('hidden');
+                btn_stop.classList.add('hidden');
+
+                txtArea.innerHTML = '';
+                // txtArea.value = '';
+                window.cancelAnimationFrame(t.raf);
+            }
+
+            t.exe = function(){
+                eval(txtArea.value);
+            }
+        }
+
+    </script>
+</body>
+
+</html>
