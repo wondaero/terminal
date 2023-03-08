@@ -84,7 +84,8 @@
                 <button id="btn_stop" class="hidden" onclick="autoTxt.stop()">STOP</button>
                 <button id="btn_auto" onclick="autoTxt.ing()">AUTO</button>
                 <button onclick="autoTxt.init()">INIT</button>
-                <button onclick="autoTxt.exe()">EXECUTE</button>
+                <!-- <button onclick="autoTxt.exe()">EXECUTE</button> -->
+                <!-- <button onclick="autoTxt.calc()">CALC</button> -->
             </div>
         </header>
         <textarea></textarea>
@@ -126,9 +127,12 @@
                 if(txt === '!') txt = '\n';
                 else if(txt === '@') txt = ' ';
 
-                console.log(txtArea.innerHTML);
-
                 txtArea.innerHTML += txt;
+
+                txtArea.focus();
+                txtArea.innerHTML = txtArea.value;
+                txtArea.scrollTop = txtArea.innerHTML.length * 16;
+                
                 t.raf = window.requestAnimationFrame(t.ing);
             }
 
@@ -143,13 +147,18 @@
                 btn_auto.classList.remove('hidden');
                 btn_stop.classList.add('hidden');
 
-                txtArea.innerHTML = '';
-                // txtArea.value = '';
                 window.cancelAnimationFrame(t.raf);
+                txtArea.innerHTML = '';
+                txtArea.innerText = '';
+
             }
 
             t.exe = function(){
                 eval(txtArea.value);
+            }
+
+            t.calc = function(){
+                txtArea.innerHTML += ('=' + eval(txtArea.value));
             }
         }
 
