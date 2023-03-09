@@ -13,7 +13,7 @@
             flex-direction: column;
         }
         header{
-            background: #fff;
+            background: #f8f8f8;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -35,6 +35,11 @@
             border-radius: 50%;
             background: black;
             box-shadow: inset 0 0 5px rgba(0, 0, 0, .5);
+            border: 1px solid #8F9092;
+        }
+
+        li.last-child{
+            margin-right: 0;
         }
 
         header .btns{
@@ -45,16 +50,19 @@
         header .btns button{
             outline: 0;
             border: 0;
-            background: #eee;
-            border-radius: 5px;
+            background: linear-gradient(to top, #D8D9DB 0%, #fff 80%, #FDFDFD 100%);
+            border: 1px solid #8F9092;
+            border-radius: 50px;
             padding: 5px 10px;
-            margin-right: 4px;
+            margin-right: 20px;
             font-size: 12px;
+            box-shadow: 0 4px 3px 1px #FCFCFC, 0 6px 8px #D6D7D9, 0 -4px 4px #CECFD1, 0 -6px 4px #FEFEFE, inset 0 0 3px 0 #CECFD1;
         }
         header .btns button.hidden{
             display: none;
         }
 
+        header .btns button.btn-init,
         header .btns button:last-child{
             margin-right: 0;
         }
@@ -85,13 +93,12 @@
             </ul>
             <div class="btns">
                 <button id="btn_stop" class="hidden" onclick="autoTxt.stop()">STOP</button>
-                <button id="btn_auto" onclick="autoTxt.ing()">AUTO</button>
-                <button onclick="autoTxt.init()">INIT</button>
-                <!-- <button onclick="autoTxt.exe()">EXECUTE</button> -->
-                <!-- <button onclick="autoTxt.calc()">CALC</button> -->
+                <button id="btn_go" class="hidden" onclick="autoTxt.ing()">GO</button>
+                <button id="btn_init" class="btn-init hidden" onclick="autoTxt.init()">INIT</button>
+                <button id="btn_upload" onclick="autoTxt.upload()">UPLOAD</button>
             </div>
         </header>
-        <textarea></textarea>
+        <textarea disabled></textarea>
     </div>
     
     <script>
@@ -100,9 +107,8 @@
         const lis = document.querySelectorAll('li');
         const txtArea = document.querySelector('textarea');
         const btn_stop = document.querySelector('#btn_stop');
-        const btn_auto = document.querySelector('#btn_auto');
-
-        const strings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@';
+        const btn_go = document.querySelector('#btn_go');
+        const btn_upload = document.querySelector('#btn_upload');
 
         lis.forEach(function(el){
             el.style.background = `linear-gradient(135deg, ${el.dataset.bg} 50%, ${el.dataset.color} 0)`;
@@ -120,47 +126,71 @@
             const t = this;
 
             t.raf = false;
+            t.text = '';
+            t.idx = 0;
 
             t.ing = function(){
-                btn_auto.classList.add('hidden');
+                if(!t.text){
+                    alert('파일 업로드 먼저 진행해주세요.');
+                    return;
+                }
+
+                btn_go.classList.add('hidden');
                 btn_stop.classList.remove('hidden');
 
-                let txt = strings[getRandomNum(0, strings.length - 1)];
+                if(t.idx >= t.text.length) t.idx = 0;
 
-                if(txt === '!') txt = '\n';
-                else if(txt === '@') txt = ' ';
+                for(let i = 0; i < getRandomNum(0, 10); i++){
+                    txtArea.innerHTML += t.text[t.idx++];
+                }
 
-                txtArea.innerHTML += txt;
-
-                txtArea.innerHTML = txtArea.value;
                 txtArea.scrollTop = txtArea.innerHTML.length * 16;
                 
                 t.raf = window.requestAnimationFrame(t.ing);
             }
 
             t.stop = function(){
-                btn_auto.classList.remove('hidden');
+                btn_go.classList.remove('hidden');
                 btn_stop.classList.add('hidden');
 
                 window.cancelAnimationFrame(t.raf);
             }
 
             t.init = function(){
-                btn_auto.classList.remove('hidden');
+                btn_upload.classList.remove('hidden');
+                btn_go.classList.add('hidden');
                 btn_stop.classList.add('hidden');
+                btn_init.classList.add('hidden');
 
                 window.cancelAnimationFrame(t.raf);
+                t.idx = 0;
                 txtArea.innerHTML = '';
                 txtArea.innerText = '';
 
             }
 
-            t.exe = function(){
-                eval(txtArea.value);
+            t.upload = function(){
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.onchange = function (e) {
+                    t.read(e.target.files);
+                };
+                input.click();
             }
 
-            t.calc = function(){
-                txtArea.innerHTML += ('=' + eval(txtArea.value));
+            t.read = function(file){
+                console.log(file);
+                const reader = new FileReader();
+                reader.onload = function () {
+                    txtArea.innerHTML = file[0].name + '\n\n';
+                    btn_upload.classList.add('hidden');
+                    btn_go.classList.remove('hidden');
+                    btn_stop.classList.add('hidden');
+                    btn_init.classList.remove('hidden');
+                    t.text = reader.result;
+                };
+
+                reader.readAsText(file[0], 'utf-8');
             }
         }
 
