@@ -123,19 +123,12 @@
             left: 0;
             right: 0;
             bottom: 0;
-            overflow: hidden;
         }
 
         .img-cover div{
             width: 10%;
             height: 10%;
             box-sizing: border-box;
-            transition: .5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-
-        .img-cover div.disapear{
-            transform: scale(0) rotate(360deg);
-            opacity: 0;
         }
 
     </style>
@@ -211,35 +204,23 @@
             t.raf = false;
             t.text = '';
             t.idx = 0;
-            t.img = false;
 
             t.ing = function(){
-                // if(!t.text){
-                //     alert('파일 업로드 먼저 진행해주세요.');
-                //     return;
-                // }
+                if(!t.text){
+                    alert('파일 업로드 먼저 진행해주세요.');
+                    return;
+                }
 
                 btn_go.classList.add('hidden');
                 btn_stop.classList.remove('hidden');
 
-                if(t.isImg){
-                    const target = imgCover.querySelectorAll('div')[parseInt((t.idx++ / 5))];
-                    if(!target){
-                        t.init();
-                        return;
-                    }
+                if(t.idx >= t.text.length) t.idx = 0;
 
-                    target.classList.add('disapear');
-                }else{
-                    if(t.idx >= t.text.length) t.idx = 0;
-    
-                    for(let i = 0; i < getRandomNum(0, 10); i++){
-                        txtArea.innerHTML += t.text[t.idx++];
-                    }
-    
-                    txtArea.scrollTop = txtArea.innerHTML.length * 16;
+                for(let i = 0; i < getRandomNum(0, 10); i++){
+                    txtArea.innerHTML += t.text[t.idx++];
                 }
 
+                txtArea.scrollTop = txtArea.innerHTML.length * 16;
                 
                 t.raf = window.requestAnimationFrame(t.ing);
             }
@@ -257,11 +238,9 @@
                 btn_stop.classList.add('hidden');
                 btn_init.classList.add('hidden');
 
-                imgCover.innerHTML = '';
-
                 window.cancelAnimationFrame(t.raf);
-
                 t.idx = 0;
+                t.init = false;
                 txtArea.innerHTML = '';
                 txtArea.innerText = '';
 
@@ -284,14 +263,12 @@
                     
                     // t.text = reader.result;
 
-                    btn_upload.classList.add('hidden');
-                    btn_go.classList.remove('hidden');
-                    btn_stop.classList.add('hidden');
-                    btn_init.classList.remove('hidden');
-
                     
                     if(t.isImg){
+                        t.init();
                         t.isImg = true;
+
+                        console.log(t);
 
                         txtArea.classList.add('hidden');
                         imgWrapper.classList.remove('hidden');
@@ -308,6 +285,10 @@
                         }
                     }else{
                         txtArea.innerHTML = file[0].name + '\n\n';
+                        btn_upload.classList.add('hidden');
+                        btn_go.classList.remove('hidden');
+                        btn_stop.classList.add('hidden');
+                        btn_init.classList.remove('hidden');
                         
                         txtArea.classList.remove('hidden');
                         imgWrapper.classList.add('hidden');
